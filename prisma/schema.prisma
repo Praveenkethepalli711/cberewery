@@ -1,0 +1,63 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity", "interactiveTransactions"]
+}
+
+datasource db {
+  provider             = "mysql"
+  url                  = env("DATABASE_URL")
+  referentialIntegrity = "prisma"
+}
+
+// New model for Brewery
+model Brewery {
+  id          BigInt   @id
+  name        String   @db.VarChar(100)
+  city        String   @db.VarChar(100)
+  address     String   @db.VarChar(255)
+  phone       String?  @db.VarChar(20)
+  websiteUrl  String?  @db.VarChar(255)
+  state       String   @db.VarChar(50)
+  reviews     Review[]
+  // Add other brewery-related fields as needed
+  @@map("breweries")
+}
+
+// New model for Review
+model Review {
+  id          BigInt   @id
+  brewery     Brewery  @relation(fields: [breweryId], references: [id])
+  breweryId   BigInt   @map("brewery_id")
+  user        User     @relation(fields: [userId], references: [id])
+  userId      BigInt   @map("user_id")
+  rating      Int      @db.TinyInt
+  description String?
+  createdAt   DateTime @default(now()) @db.DateTime(0) @map("created_at")
+
+  @@map("reviews")
+}
+
+// Update the existing Book model
+model Book {
+  // Existing fields remain unchanged
+
+  // Replace the following line
+  ratings      Rating[]
+  
+  // With this line
+  brewery      Brewery @relation(fields: [breweryId], references: [id])
+  breweryId    BigInt  @map("brewery_id")
+}
+
+// Remove the existing Rating model
+
+// Update the User model
+model User {
+  // Existing fields remain unchanged
+
+  // Replace the following line
+  ratings  Rating[]
+  
+  // With this line
+  reviews  Review[]
+}
